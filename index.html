@@ -18,42 +18,12 @@
 		<title>Calculator</title>
 	</head>
 	<body class="bg-gray-800">
-		<div id="modal" class="modal">
-			<div
-				class="
-					modal-content
-					rounded-xl
-					bg-white
-					ring-2 ring-red-500
-					shadow-2xl
-					p-2
-					w-1/6
-				"
-			>
-				<p class="nunito text-center text-lg text-red-700 font-bold">
-					Not implemented...
-				</p>
-			</div>
-		</div>
-
 		<div class="h-screen w-screen flex-col flex justify-between">
 			<header class="shadow-2xl bg-gray-700 p-4 flex">
 				<div>
 					<a
 						href="https://github.com/miguelpereira-dev/js-calculator"
-						class="
-							text-xl text-white
-							nunito
-							inline-flex
-							gap-4
-							items-center
-							p-2
-							rounded-xl
-							transition-colors
-							hover:bg-white hover:text-black
-							repolink
-							duration-500
-						"
+						class="text-xl text-white nunito inline-flex gap-4 items-center p-2 rounded-xl transition-colors hover:bg-white hover:text-black repolink duration-500"
 					>
 						<svg
 							height="32"
@@ -77,19 +47,12 @@
 					<input
 						disabled
 						id="display"
-						class="
-							bg-gray-100
-							w-full
-							h-14
-							rounded-2xl
-							focus:appearance-none focus:outline-none
-							p-5
-						"
+						class="bg-gray-100 w-full h-14 rounded-2xl focus:appearance-none focus:outline-none p-5"
 					/>
 					<div class="buttons grid grid-rows-5 grid-cols-4 mt-5 gap-2">
 						<!-- Row -->
 						<button id="clear" class="col-span-2">C</button>
-						<button id="percentage">%</button>
+						<button id="erase">⌫</button>
 						<button id="divide">/</button>
 						<!-- Row -->
 						<button id="7">7</button>
@@ -115,7 +78,10 @@
 			</div>
 			<span class="self-center mb-2 text-gray-300 nunito text-lg">
 				by
-				<a class="font-bold hover:text-blue-300 transition" href="https://github.com/miguelpereira-dev/">
+				<a
+					class="font-bold hover:text-blue-300 transition"
+					href="https://github.com/miguelpereira-dev/"
+				>
 					Miguel Pereira
 				</a>
 			</span>
@@ -160,18 +126,28 @@
 					$('#clear').on('click', () => {
 						this.display = '0';
 					});
-					$('#percentage').on('click', () => {
-						openModal();
+					$('#erase').on('click', () => {
+						const displayArr = this.display.split('');
+						displayArr.pop();
+						if (displayArr.length == 0) {
+							this.display = '0';
+						} else {
+							this.display = displayArr.join('');
+						}
 					});
 					$('#point').on('click', () => {
-						openModal();
+						if (this.hasOperation) {
+							this.display = '0.';
+							this.hasOperation = false;
+						} else if (!this.display.includes('.')) {
+							this.display += '.';
+						}
 					});
 
 					for (const button of Object.values(this.buttons)) {
 						button.on('click', ({ target }) => {
 							if (this.hasOperation) {
 								this.display = target.id;
-								this.hasOperation = false;
 							} else {
 								this.display =
 									this.display == '0'
@@ -183,6 +159,9 @@
 				}
 
 				operate(operation) {
+					if (this.hasOperation) {
+						this.calculate();
+					}
 					this.buffer = this.display;
 					this.display = this.display + ' ' + operation;
 					this.operation = operation;
@@ -203,18 +182,11 @@
 				calculate() {
 					const result = eval(this.buffer + this.operation + this.display);
 					this.buffer = '0';
-					this.display = result.toString();
-					this.hasOperation = true;
+					this.display = (
+						Math.round((result + Number.EPSILON) * 100) / 100
+					).toString();
+					this.hasOperation = false;
 				}
-			}
-
-			const modal = $('#modal');
-
-			function openModal() {
-				modal.css('display', 'block');
-				setTimeout(() => {
-					modal.css('display', 'none');
-				}, 1000 * 5);
 			}
 
 			const calculator = new Calculator();
