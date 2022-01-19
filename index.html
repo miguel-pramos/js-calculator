@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Nunito&display=swap"
+			rel="stylesheet"
+		/>
+		<link
+			href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css"
+			rel="stylesheet"
+		/>
+		<link rel="stylesheet" href="./styles/style.css" />
+		<title>Calculator</title>
+	</head>
+	<body class="bg-gray-800">
+		<div id="modal" class="modal">
+			<div
+				class="
+					modal-content
+					rounded-xl
+					bg-white
+					ring-2 ring-red-500
+					shadow-2xl
+					p-2
+					w-1/6
+				"
+			>
+				<p class="nunito text-center text-lg text-red-700 font-bold">
+					Not implemented...
+				</p>
+			</div>
+		</div>
+
+		<div class="h-screen w-screen flex justify-center items-center">
+			<div class="bg-gray-600 w-80 rounded-2xl shadow-2xl p-5 flex flex-col">
+				<input
+					disabled
+					id="display"
+					class="
+						bg-gray-100
+						w-full
+						h-14
+						rounded-2xl
+						focus:appearance-none focus:outline-none
+						p-5
+					"
+				/>
+				<div class="buttons grid grid-rows-5 grid-cols-4 mt-5 gap-2">
+					<!-- Row -->
+					<button id="clear" class="col-span-2">C</button>
+					<button id="percentage">%</button>
+					<button id="divide">/</button>
+					<!-- Row -->
+					<button id="7">7</button>
+					<button id="8">8</button>
+					<button id="9">9</button>
+					<button id="times">x</button>
+
+					<!-- Row -->
+					<button id="4">4</button>
+					<button id="5">5</button>
+					<button id="6">6</button>
+					<button id="minus">-</button>
+					<!-- Row -->
+					<button id="1">1</button>
+					<button id="2">2</button>
+					<button id="3">3</button>
+					<button id="plus">+</button>
+					<!-- Row -->
+					<button id="0" class="col-span-2">0</button>
+					<button id="point">.</button>
+					<button id="equals" class="">=</button>
+				</div>
+			</div>
+		</div>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		<script>
+			class Calculator {
+				constructor() {
+					this.updateDisplay();
+
+					this.display = '0';
+					this.buffer = '0';
+					this.buttons = {};
+					this.operation;
+					this.hasOperation = false;
+
+					$('#minus').on('click', () => {
+						this.operate('-');
+					});
+					$('#plus').on('click', () => {
+						this.operate('+');
+					});
+					$('#divide').on('click', () => {
+						this.operate('/');
+					});
+					$('#times').on('click', () => {
+						this.operate('*');
+					});
+					$('#equals').on('click', () => this.calculate());
+
+					this.buttons['zero'] = $('#0');
+					this.buttons['one'] = $('#1');
+					this.buttons['two'] = $('#2');
+					this.buttons['three'] = $('#3');
+					this.buttons['four'] = $('#4');
+					this.buttons['five'] = $('#5');
+					this.buttons['six'] = $('#6');
+					this.buttons['seven'] = $('#7');
+					this.buttons['eight'] = $('#8');
+					this.buttons['nine'] = $('#9');
+
+					$('#clear').on('click', () => {
+						this.display = '0';
+					});
+					$('#percentage').on('click', () => {
+						openModal();
+					});
+					$('#point').on('click', () => {
+						openModal();
+					});
+
+					for (const button of Object.values(this.buttons)) {
+						button.on('click', ({ target }) => {
+							if (this.hasOperation) {
+								this.display = target.id;
+								this.hasOperation = false;
+							} else {
+								this.display =
+									this.display == '0'
+										? target.id
+										: this.display + target.id;
+							}
+						});
+					}
+				}
+
+				operate(operation) {
+					this.buffer = this.display;
+					this.display = this.display + ' ' + operation;
+					this.operation = operation;
+					this.hasOperation = true;
+				}
+
+				updateDisplay() {
+					setInterval(() => {
+						const arr = this.display.split('');
+						if (arr.length > 12 && !this.hasOperation) {
+							arr.pop();
+							this.display = arr.join('');
+						}
+						$('#display').val(this.display);
+					}, 1000 / 24);
+				}
+
+				calculate() {
+					const result = eval(this.buffer + this.operation + this.display);
+					this.buffer = '0';
+					this.display = result.toString();
+					this.hasOperation = true;
+				}
+			}
+
+			const modal = $('#modal');
+
+			function openModal() {
+				modal.css('display', 'block');
+				setTimeout(() => {
+					modal.css('display', 'none');
+				}, 1000 * 5);
+			}
+
+			const calculator = new Calculator();
+		</script>
+	</body>
+</html>
